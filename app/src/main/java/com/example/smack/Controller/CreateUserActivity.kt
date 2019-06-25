@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import com.example.smack.R
 import com.example.smack.Services.AuthService
+import com.example.smack.Services.UserDataService
 import kotlinx.android.synthetic.main.activity_create_user.*
 import java.util.*
 
@@ -21,10 +22,10 @@ class CreateUserActivity : AppCompatActivity() {
 
     fun generateUserAvatar(view: View) {
         val random = Random()
-        val colour = random.nextInt(2)
+        val color = random.nextInt(2)
         val avatar = random.nextInt(28)
 
-        if (colour == 0) {
+        if (color == 0) {
             userAvatar = "light$avatar"
         } else {
             userAvatar = "dark$avatar"
@@ -49,14 +50,23 @@ class CreateUserActivity : AppCompatActivity() {
     }
 
     fun createCreateUserBtnClicked(view: View) {
+
+        val userName = createUserNameTxt.text.toString()
         val email = createEmailTxt.text.toString()
         val password = createPasswordTxt.text.toString()
+
         AuthService.registerUser(this, email, password) { registerSuccess ->
             if (registerSuccess) {
-                AuthService.loginUser(this, email, password) {loginSuccess ->
+                AuthService.loginUser(this, email, password) { loginSuccess ->
                     if (loginSuccess) {
-                        println(AuthService.authToken)
-                        println(AuthService.userEmail)
+                        AuthService.createUser(this, userName, email, userAvatar, avatarColor) {createSuccess ->
+                            if (createSuccess) {
+                                println(UserDataService.avatarName)
+                                println(UserDataService.avatarColor)
+                                println(UserDataService.name)
+                                finish()
+                            }
+                        }
                     }
                 }
             }
