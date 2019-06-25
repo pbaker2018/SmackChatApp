@@ -13,4 +13,9 @@
     <string name="menu_tools">Tools</string>
     <string name="menu_share">Share</string>
     <string name="menu_send">Send</string>
+    <string name="tap_to_generate_user_avatar">Tap to generate user avatar</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="generate_background_colour">GENERATE BACKGROUND COLOUR</string>
+    <string name="create_user">CREATE USER</string>
 </resources>
