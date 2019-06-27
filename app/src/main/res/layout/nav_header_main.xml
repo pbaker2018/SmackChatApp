@@ -23,7 +23,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/nav_header_vertical_spacing"
-            android:text="PaulineB"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:id="@+id/userNameNavHeader"
             tools:text="PaulineB"
@@ -34,7 +33,6 @@
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="pauline@example.com"
             android:id="@+id/userEmailNavHeader"
             tools:text="pauline@example.com" app:layout_constraintStart_toEndOf="@+id/userImageNavHeader"
             android:layout_marginStart="8dp"
