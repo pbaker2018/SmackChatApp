@@ -107,10 +107,5 @@ class CreateUserActivity : AppCompatActivity() {
             backgroundColorBtn.isEnabled = true
         }
     }
-
-
-
-
-
 }
 
