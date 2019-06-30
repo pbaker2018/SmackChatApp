@@ -21,9 +21,13 @@ import com.example.smack.R
 import com.example.smack.Services.AuthService
 import com.example.smack.Services.UserDataService
 import com.example.smack.Utilities.BROADCAST_USER_DATA_CHANGE
+import com.example.smack.Utilities.SOCKET_URL
+import io.socket.client.IO
 import kotlinx.android.synthetic.main.nav_header_main.*
 
 class MainActivity : AppCompatActivity() {
+
+    val socket = IO.socket(SOCKET_URL)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,10 +44,19 @@ class MainActivity : AppCompatActivity() {
         )
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
-        hideKeyboard()
+    }
 
+    override fun onResume() {
         LocalBroadcastManager.getInstance(this).registerReceiver(userDataChangeReceiver, IntentFilter(
             BROADCAST_USER_DATA_CHANGE))
+        socket.connect()
+        super.onResume()
+    }
+
+    override fun onDestroy() {
+        socket.disconnect()
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(userDataChangeReceiver)
+        super.onDestroy()
     }
 
     private val userDataChangeReceiver = object : BroadcastReceiver() {
@@ -97,11 +110,12 @@ class MainActivity : AppCompatActivity() {
                     val channelName = nameTextField.text.toString()
                     val channelDesc = descTextField.text.toString()
 
-                    hideKeyboard()
+                    socket.emit("newChannel", channelName, channelDesc )
+
                 }
                 .setNegativeButton("Cancel") { dialogInterface, i ->
                     // cancel and close the dialog
-                    hideKeyboard()
+
                 }
                 .show()
         }
@@ -110,14 +124,15 @@ class MainActivity : AppCompatActivity() {
     fun sendMessageBtnClicked(view: View){
 
     }
-
-    fun hideKeyboard() {
-        // a template function for hiding your keyboard
-        val inputManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-
-        if (inputManager.isAcceptingText) {
-            inputManager.hideSoftInputFromWindow(currentFocus.windowToken, 0)
-        }
-
 }
+
+//    fun hideKeyboard() {
+//        // a template function for hiding your keyboard
+//        val inputManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+//
+//        if (inputManager.isAcceptingText) {
+//            inputManager.hideSoftInputFromWindow(currentFocus.windowToken, 0)
+//        }
+
+
 
