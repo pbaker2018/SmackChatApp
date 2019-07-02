@@ -51,6 +51,6 @@ object MessageService {
                 return headers
             }
         }
-        Volley.newRequestQueue(context).add(channelsRequest)
+        App.prefs.requestQueue.add(channelsRequest)
     }
 }
