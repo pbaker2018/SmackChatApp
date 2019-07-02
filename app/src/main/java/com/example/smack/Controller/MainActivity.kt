@@ -10,15 +10,18 @@ import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v4.widget.DrawerLayout
 import android.support.design.widget.NavigationView
+import android.support.v4.content.ContextCompat.getSystemService
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import com.example.smack.Model.Channel
+import com.example.smack.Model.Message
 import com.example.smack.R
 import com.example.smack.Services.AuthService
 import com.example.smack.Services.MessageService
@@ -35,7 +38,7 @@ class MainActivity : AppCompatActivity() {
 
     val socket = IO.socket(SOCKET_URL)
     lateinit var channelAdapter: ArrayAdapter<Channel>
-    var selectedChannel : Channel? = null
+    var selectedChannel: Channel? = null
 
     private fun setUpAdapters() {
         channelAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, MessageService.channels)
@@ -50,6 +53,7 @@ class MainActivity : AppCompatActivity() {
 
         socket.connect()
         socket.on("channelCreated", onNewChannel)
+        socket.on("messageCreated", onNewMessage)
 
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
@@ -70,13 +74,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (App.prefs.isLoggedIn) {
-            AuthService.findUserByEmail(this){}
+            AuthService.findUserByEmail(this) {}
         }
     }
 
     override fun onResume() {
         LocalBroadcastManager.getInstance(this).registerReceiver(
-            userDataChangeReceiver, IntentFilter(BROADCAST_USER_DATA_CHANGE))
+            userDataChangeReceiver, IntentFilter(BROADCAST_USER_DATA_CHANGE)
+        )
         super.onResume()
     }
 
@@ -152,7 +157,7 @@ class MainActivity : AppCompatActivity() {
                     val channelName = nameTextField.text.toString()
                     val channelDesc = descTextField.text.toString()
 
-                    socket.emit("newChannel", channelName, channelDesc )
+                    socket.emit("newChannel", channelName, channelDesc)
 
                 }
                 .setNegativeButton("Cancel") { dialogInterface, i ->
@@ -175,19 +180,48 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun sendMessageBtnClicked(view: View){
+    private val onNewMessage = Emitter.Listener { args ->
+        runOnUiThread {
+            val msgBody = args[0] as String
+            val channelId = args[2] as String
+            val userName = args[3] as String
+            val userAvatar = args[4] as String
+            val userAvatarColor = args[5] as String
+            val id = args[6] as String
+            val timestamp = args[7] as String
 
+            val newMessage = Message(msgBody, userName, channelId, userAvatar, userAvatarColor, id, timestamp)
+            MessageService.messages.add(newMessage)
+            println(newMessage.message)
+        }
+    }
+
+    fun sendMessageBtnClicked(view: View) {
+        if (App.prefs.isLoggedIn && messageTxtField.text.isNotEmpty() && selectedChannel != null) {
+            val userId = UserDataService.id
+            val channelId = selectedChannel!!.id
+            socket.emit(
+                "newMessage",
+                messageTxtField.text.toString(),
+                userId,
+                channelId,
+                UserDataService.name,
+                UserDataService.avatarName,
+                UserDataService.avatarColor
+            )
+            messageTxtField.text.clear()
+            hideKeyboard()
+        }
+    }
+
+    private fun hideKeyboard() {
+        val inputManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+
+        if (inputManager.isAcceptingText) {
+            inputManager.hideSoftInputFromWindow(currentFocus.windowToken, 0)
+        }
     }
 }
-
-
-//    fun hideKeyboard() {
-//        // a template function for hiding your keyboard
-//        val inputManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-//
-//        if (inputManager.isAcceptingText) {
-//            inputManager.hideSoftInputFromWindow(currentFocus.windowToken, 0)
-//        }
 
 
 
