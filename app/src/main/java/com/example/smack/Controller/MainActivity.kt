@@ -59,6 +59,10 @@ class MainActivity : AppCompatActivity() {
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
         setUpAdapters()
+
+        if (App.prefs.isLoggedIn) {
+            AuthService.findUserByEmail(this){}
+        }
     }
 
     override fun onResume() {
@@ -75,7 +79,7 @@ class MainActivity : AppCompatActivity() {
 
     private val userDataChangeReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
-            if (AuthService.isLoggedIn) {
+            if (App.prefs.isLoggedIn) {
                 userNameNavHeader.text = UserDataService.name
                 userEmailNavHeader.text = UserDataService.email
                 val resourceId = resources.getIdentifier(UserDataService.avatarName, "drawable", packageName)
@@ -103,7 +107,7 @@ class MainActivity : AppCompatActivity() {
 
     fun loginBtnNavClicked(view: View) {
 
-        if (AuthService.isLoggedIn) {
+        if (App.prefs.isLoggedIn) {
             UserDataService.logout()
             userNameNavHeader.text = ""
             userEmailNavHeader.text = ""
@@ -118,13 +122,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun addChannelBtnClicked(view: View) {
-        if (AuthService.isLoggedIn) {
+        if (App.prefs.isLoggedIn) {
             val builder = AlertDialog.Builder(this)
             val dialogView = layoutInflater.inflate(R.layout.add_channel_dialog, null)
 
             builder.setView(dialogView)
                 .setPositiveButton("Add") { dialogInterface, i ->
-                  // perform some logic when clicked
+
                     val nameTextField = dialogView.findViewById<EditText>(R.id.addChannelNameTxt)
                     val descTextField = dialogView.findViewById<EditText>(R.id.addChannelDescTxt)
                     val channelName = nameTextField.text.toString()

@@ -9,7 +9,6 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import com.example.smack.R
 import com.example.smack.Services.AuthService
-import kotlinx.android.synthetic.main.activity_create_user.*
 import kotlinx.android.synthetic.main.activity_login.*
 
 class LoginActivity : AppCompatActivity() {
@@ -28,7 +27,7 @@ class LoginActivity : AppCompatActivity() {
         if (email.isNotEmpty() && password.isNotEmpty()) {
             AuthService.loginUser(this, email, password) { loginSuccess ->
                 if (loginSuccess) {
-                    AuthService.finduserByEmail(this) { findSuccess ->
+                    AuthService.findUserByEmail(this) { findSuccess ->
                         if (findSuccess) {
                             enableSpinner(false)
                             finish()
